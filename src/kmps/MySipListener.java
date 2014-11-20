@@ -1,5 +1,7 @@
 package kmps;
 
+import java.text.ParseException;
+
 import javax.sip.DialogTerminatedEvent;
 import javax.sip.IOExceptionEvent;
 import javax.sip.RequestEvent;
@@ -7,7 +9,11 @@ import javax.sip.ResponseEvent;
 import javax.sip.SipListener;
 import javax.sip.TimeoutEvent;
 import javax.sip.TransactionTerminatedEvent;
+import javax.sip.header.ToHeader;
 import javax.sip.message.Request;
+import javax.sip.message.Response;
+
+import kmps.header.contact.MyContactAddress;
 
 public class MySipListener implements SipListener {
 
@@ -31,44 +37,60 @@ public class MySipListener implements SipListener {
 
 	@Override
 	public void processRequest(RequestEvent e) {
-		Req req;
 		//System.out.println(req.toString());
         if (e.getRequest().getMethod().equals(Request.REGISTER)) {
         	//System.out.println("REQUEST");
-        	if (ctr.reqList.existsByEvent(e)){
+        	if (ctr.reqList.existsByLocation(e, false)){
         		System.out.println("<-- Request Exists");
-        		Req tmp = ctr.reqList.getByEvent(e);
+        		Req tmp = ctr.reqList.getByLocation(e);
+        		if(tmp.value == Status.ACK){
+        			MyContactAddress cParser = MyContactAddress.getContactAddressByEvent(e);
+        			if (ctr.getAccount(cParser.getName()) != null){
+	        			tmp.init(ctr.getAccount(cParser.getName()));
+        			}
+        			//ZLA EXTENSION
+        			else{
+        				try {
+            				System.out.println("<-- ERR: Wrong Extendion");
+    						ctr.respond(e, ctr.messageFactory.createResponse(Response.BAD_EXTENSION, e.getRequest()));
+    					} catch (ParseException e1) {
+    						e1.printStackTrace();
+    					}
+        			}
+        		}
         		tmp.changeState(ctr, e);
         	}
         	else{
-        		System.out.println("<-- Creating Request");
-        		ctr.reqList.add(new Req(e));
+        		MyContactAddress cParser = MyContactAddress.getContactAddressByEvent(e);
+        		if (ctr.getAccount(cParser.getName()) != null){
+        			System.out.println("<-- Creating Request");
+	        		Req tmp = new Req(e, ctr.getAccount(cParser.getName()));
+	        		ctr.reqList.add(tmp);
+	        		tmp.changeState(ctr, e);
+        		}
+        		//ZLA EXTENSION
+        		else{
+        			try {
+        				System.out.println("<-- ERR: Wrong Extendion");
+						ctr.respond(e, ctr.messageFactory.createResponse(Response.BAD_EXTENSION, e.getRequest()));
+					} catch (ParseException e1) {
+						e1.printStackTrace();
+					}
+        		}
         	}
-        	/*
-            reg = findRegistration(req);
-            if (reg != null) {
-                System.out.println(reg);
-                reg.register(req);
-            } else {
-                System.out.println("reg not found");
-                reg = new Registration(sipServer);
-                sipServer.getRegistrationList().add(reg);
-                reg.register(requestEvent);
-
-            }
-            */
         }
         if (e.getRequest().getMethod().equals(Request.INVITE)) {
         	System.out.println("INVITE");
-        	/*
-            System.out.println(requestEvent.getRequest().toString());
-            reg = findRegistration(requestEvent);
-            if (reg != null) {
-                reg.createCall(requestEvent);
-            } else {
-                System.out.println("neexistuje zariadenie");
-            }
-            */
+        	ToHeader to = (ToHeader)e.getRequest().getHeader("to");
+        	System.out.println(to.toString());
+        	MyContactAddress cParser = MyContactAddress.getContactAddressByEvent(e);
+        	if (ctr.reqList.existsByAccount(ctr.getAccount(cParser.getName()), true)){
+        		
+        	}
+        	//user is not registered
+        	else{
+        		
+        	}
         }
 		
 	}

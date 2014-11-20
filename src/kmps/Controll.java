@@ -20,9 +20,6 @@ import javax.sip.header.ContactHeader;
 import javax.sip.header.HeaderFactory;
 import javax.sip.message.MessageFactory;
 import javax.sip.message.Response;
-import javax.swing.text.html.HTMLDocument.Iterator;
-
-import kmps.header.contact.MyContactAddress;
 
 public class Controll {
 	
@@ -63,8 +60,8 @@ public class Controll {
 		try {
 			// Get the local IP address.
 			//this.ip = "147.175.182.134";
-			//this.ip = "192.168.104.12";
-			this.ip = "192.168.0.111";
+			this.ip = "192.168.104.1";
+			//this.ip = "192.168.0.111";
 			
 			// Create the SIP factory and set the path name.
 			this.sipFactory = SipFactory.getInstance();

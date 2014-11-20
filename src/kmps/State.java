@@ -20,7 +20,6 @@ public class State implements ReqAction {
 			auth(ctr, e);
 			break;
 		case ACK:
-			ack(ctr, e);
 			break;
 		}
 		System.out.println(" to " + this.value.toString());
@@ -36,12 +35,6 @@ public class State implements ReqAction {
 	public void auth(Controll ctr, RequestEvent req) {
 		// TODO Auto-generated method stub
 		value = Status.ACK;
-	}
-
-	@Override
-	public void ack(Controll ctr, RequestEvent req) {
-		// TODO Auto-generated method stub
-		value = Status.FIN;
 	}
 
 }

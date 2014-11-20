@@ -32,4 +32,11 @@ public class Account {
 		byte[] ret = md.digest(tmp);
 		return ret.toString();
 	}
+	
+	public boolean equals(Account a){
+		if (a.name == this.name && this.ext == a.ext){
+			return true;
+		}
+		return false;
+	}
 }
