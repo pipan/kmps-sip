@@ -9,6 +9,9 @@ import javax.sip.ResponseEvent;
 import javax.sip.SipListener;
 import javax.sip.TimeoutEvent;
 import javax.sip.TransactionTerminatedEvent;
+import javax.sip.address.SipURI;
+import javax.sip.header.CallIdHeader;
+import javax.sip.header.FromHeader;
 import javax.sip.header.ToHeader;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
@@ -81,11 +84,29 @@ public class MySipListener implements SipListener {
         }
         if (e.getRequest().getMethod().equals(Request.INVITE)) {
         	System.out.println("INVITE");
-        	ToHeader to = (ToHeader)e.getRequest().getHeader("to");
-        	System.out.println(to.toString());
         	MyContactAddress cParser = MyContactAddress.getContactAddressByEvent(e);
         	if (ctr.reqList.existsByAccount(ctr.getAccount(cParser.getName()), true)){
-        		
+        		try {
+        			//TRYING RESPONS
+					ctr.respond(e, ctr.messageFactory.createResponse(Response.TRYING, e.getRequest()));
+					CallIdHeader id = (CallIdHeader) e.getRequest().getHeader(CallIdHeader.NAME);
+					if (ctr.conList.exists(id)){
+						Connection con = ctr.conList.getById(id);
+						con.changeState(ctr, e);
+					}
+					else{
+						SipURI tmp = (SipURI)((FromHeader)e.getRequest().getHeader("from")).getAddress().getURI();
+						String caller = tmp.getUser();
+						tmp = (SipURI)((ToHeader)e.getRequest().getHeader("to")).getAddress().getURI();
+						String callee = tmp.getUser();
+						Connection con = new Connection(ctr.reqList.getByExt(caller), ctr.reqList.getByExt(callee), id);
+						ctr.conList.add(con);
+						con.changeState(ctr, e);
+					}
+					
+				} catch (ParseException e1) {
+					e1.printStackTrace();
+				}
         	}
         	//user is not registered
         	else{

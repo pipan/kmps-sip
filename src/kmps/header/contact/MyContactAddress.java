@@ -1,6 +1,7 @@
 package kmps.header.contact;
 
 import javax.sip.RequestEvent;
+import javax.sip.address.SipURI;
 import javax.sip.address.URI;
 import javax.sip.header.ContactHeader;
 

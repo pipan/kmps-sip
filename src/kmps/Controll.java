@@ -1,9 +1,12 @@
 package kmps;
 
+import java.security.NoSuchAlgorithmException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import javax.sip.ClientTransaction;
 import javax.sip.InvalidArgumentException;
 import javax.sip.ListeningPoint;
 import javax.sip.RequestEvent;
@@ -18,8 +21,12 @@ import javax.sip.address.Address;
 import javax.sip.address.AddressFactory;
 import javax.sip.header.ContactHeader;
 import javax.sip.header.HeaderFactory;
+import javax.sip.header.ViaHeader;
 import javax.sip.message.MessageFactory;
+import javax.sip.message.Request;
 import javax.sip.message.Response;
+
+import kmps.header.InviteHeaderGenerator;
 
 public class Controll {
 	
@@ -30,7 +37,7 @@ public class Controll {
 	
 	private SipFactory sipFactory;
 	private SipStack sipStack;
-	private SipProvider sipProvider;
+	protected SipProvider sipProvider;
 	protected MessageFactory messageFactory;
 	protected HeaderFactory headerFactory;
 	private ContactHeader contactHeader;
@@ -43,6 +50,7 @@ public class Controll {
 	private MySipListener listener;
 	
 	protected ReqList reqList;
+	protected ConList conList;
 	protected List<Account> accountList;
 	
 	public Controll(){
@@ -51,6 +59,7 @@ public class Controll {
 		accountList.add(new Account("Feri", "Feri101", "101"));
 		accountList.add(new Account("Karol", "Karol102", "102"));
 		reqList = new ReqList();
+		conList = new ConList();
 		this.protocol = "UDP";
 		this.port = 5060;
 	}
@@ -109,6 +118,15 @@ public class Controll {
 		}
 		return null;
 	}
+	public String getIP(){
+		return ip;
+	}
+	public Integer getPort(){
+		return port;
+	}
+	public String getProtocol(){
+		return protocol;
+	}
 	
 	public void respond(Response response, ServerTransaction sTransaction) {
         try {
@@ -137,22 +155,31 @@ public class Controll {
         }
     }
 	
-	 public ServerTransaction getServerTransaction(RequestEvent e) {
-	        if (e.getServerTransaction() != null) {
-	            return e.getServerTransaction();
-	        } else {
-	            try {
-	                return this.sipProvider.getNewServerTransaction(e.getRequest());
-	            } catch (TransactionAlreadyExistsException ex) {
-	            	System.out.println("<-- EXC: transaction already exists");
-	            } catch (TransactionUnavailableException ex) {
-	                System.out.println("<-- EXC: transaction unavalible exception");
-	            }
-	        }
-	        return null;
-	    }
-	
-	public String getIP(){
-		return this.ip;
+	public void require(Request r){
+		try {
+			ClientTransaction trans = sipProvider.getNewClientTransaction(r);
+			trans.sendRequest();
+		} catch (TransactionUnavailableException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (SipException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 	}
+	
+	 public ServerTransaction getServerTransaction(RequestEvent e) {
+        if (e.getServerTransaction() != null) {
+            return e.getServerTransaction();
+        } else {
+            try {
+                return this.sipProvider.getNewServerTransaction(e.getRequest());
+            } catch (TransactionAlreadyExistsException ex) {
+            	System.out.println("<-- EXC: transaction already exists");
+            } catch (TransactionUnavailableException ex) {
+                System.out.println("<-- EXC: transaction unavalible exception");
+            }
+        }
+        return null;
+    }
 }

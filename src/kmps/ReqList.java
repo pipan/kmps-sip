@@ -33,6 +33,14 @@ public class ReqList {
 		}
 		return null;
 	}
+	public Req getByExt(String ext){
+		for (Req r : list){
+			if (r.equalsByExt(ext)){
+				return r;
+			}
+		}
+		return null;
+	}
 	
 	public void removeByEvent(RequestEvent e, boolean finnished){
 		for (Req r : list){

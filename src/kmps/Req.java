@@ -4,6 +4,7 @@ import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 
 import javax.sip.RequestEvent;
+import javax.sip.header.Header;
 import javax.sip.header.ViaHeader;
 import javax.sip.message.Response;
 
@@ -28,6 +29,16 @@ public class Req extends State {
 	public void init(Account account){
 		this.value = Status.REG; 
 		this.account = account;
+	}
+	
+	public String getHost(){
+		return host;
+	}
+	public Integer getPort(){
+		return port;
+	}
+	public Account getAccount(){
+		return account;
 	}
 	
 	@Override
