@@ -13,6 +13,7 @@ import javax.sip.address.SipURI;
 import javax.sip.header.CallIdHeader;
 import javax.sip.header.FromHeader;
 import javax.sip.header.ToHeader;
+import javax.sip.header.ViaHeader;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 
@@ -86,26 +87,21 @@ public class MySipListener implements SipListener {
         	System.out.println("INVITE");
         	MyContactAddress cParser = MyContactAddress.getContactAddressByEvent(e);
         	if (ctr.reqList.existsByAccount(ctr.getAccount(cParser.getName()), true)){
-        		try {
-        			//TRYING RESPONS
-					ctr.respond(e, ctr.messageFactory.createResponse(Response.TRYING, e.getRequest()));
-					CallIdHeader id = (CallIdHeader) e.getRequest().getHeader(CallIdHeader.NAME);
-					if (ctr.conList.exists(id)){
-						Connection con = ctr.conList.getById(id);
-						con.changeState(ctr, e);
-					}
-					else{
-						SipURI tmp = (SipURI)((FromHeader)e.getRequest().getHeader("from")).getAddress().getURI();
-						String caller = tmp.getUser();
-						tmp = (SipURI)((ToHeader)e.getRequest().getHeader("to")).getAddress().getURI();
-						String callee = tmp.getUser();
-						Connection con = new Connection(ctr.reqList.getByExt(caller), ctr.reqList.getByExt(callee), id);
-						ctr.conList.add(con);
-						con.changeState(ctr, e);
-					}
-					
-				} catch (ParseException e1) {
-					e1.printStackTrace();
+        		CallIdHeader id = (CallIdHeader) e.getRequest().getHeader(CallIdHeader.NAME);
+				if (ctr.conList.exists(id)){
+					System.out.println("SAME ID");
+					Connection con = ctr.conList.getById(id);
+					con.changeState(ctr, e);
+				}
+				else{
+					System.out.println("DIF ID");
+					SipURI tmp = (SipURI)((FromHeader)e.getRequest().getHeader("from")).getAddress().getURI();
+					String caller = tmp.getUser();
+					tmp = (SipURI)((ToHeader)e.getRequest().getHeader("to")).getAddress().getURI();
+					String callee = tmp.getUser();
+					Connection con = new Connection(ctr.reqList.getByExt(caller), ctr.reqList.getByExt(callee), id);
+					ctr.conList.add(con);
+					con.changeState(ctr, e);
 				}
         	}
         	//user is not registered
@@ -117,8 +113,17 @@ public class MySipListener implements SipListener {
 	}
 
 	@Override
-	public void processResponse(ResponseEvent arg0) {
-		// TODO Auto-generated method stub
+	public void processResponse(ResponseEvent e) {
+		System.out.println("RESPONSE");
+		CallIdHeader id = (CallIdHeader)e.getResponse().getHeader(CallIdHeader.NAME);
+    	if (ctr.conList.exists(id)){
+    		Connection con = ctr.conList.getById(id);
+			con.changeState(ctr, e);
+    	}
+    	//No comunication found
+    	else{
+    		
+    	}
 		
 	}
 

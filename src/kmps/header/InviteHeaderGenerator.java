@@ -34,16 +34,6 @@ public class InviteHeaderGenerator extends HeaderGenerator {
 		toUri.setUser(req.getAccount().getName());
 		toUri.setPort(ctr.getPort());
 		to.getAddress().setDisplayName(req.getAccount().getName());
-		/*
-		request.addHeader(r.getHeader("callIdHeader"));
-		request.addHeader(r.getHeader("cSeqHeader"));
-		request.addHeader(r.getHeader("fromHeader"));
-		request.addHeader(r.getHeader("toHeader"));
-		request.addHeader(r.getHeader("maxForwardsHeader"));
-		request.addHeader(r.getHeader("viaHeader"));
-		request.addHeader(r.getHeader("contactHeader"));
-		*/
-		System.out.println("MY INVITE: " + r.toString());
 		return r;
 	}
 }

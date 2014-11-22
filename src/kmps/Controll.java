@@ -41,7 +41,7 @@ public class Controll {
 	protected MessageFactory messageFactory;
 	protected HeaderFactory headerFactory;
 	private ContactHeader contactHeader;
-	private AddressFactory addressFactory;
+	protected AddressFactory addressFactory;
 	private Address contactAddress;
 	private ListeningPoint listeningPoint;
 	
@@ -126,6 +126,13 @@ public class Controll {
 	}
 	public String getProtocol(){
 		return protocol;
+	}
+	
+	public AddressFactory getAddressFactory(){
+		return addressFactory;
+	}
+	public HeaderFactory getHeaderFactory(){
+		return headerFactory;
 	}
 	
 	public void respond(Response response, ServerTransaction sTransaction) {
