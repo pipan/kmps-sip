@@ -18,6 +18,10 @@ public class ConState implements ConnectionAction {
 			invite(ctr, e);
 			break;
 		case ACK:
+			ack(ctr, e);
+			break;
+		case BYE:
+			bye(ctr, e);
 			break;
 		}
 		System.out.println(" to " + this.value.toString());
@@ -61,5 +65,11 @@ public class ConState implements ConnectionAction {
 	public void ack(Controll ctr, RequestEvent e) {
 		// TODO Auto-generated method stub
 		value = ConStatus.ACK;
+	}
+
+	@Override
+	public void bye(Controll ctr, RequestEvent e) {
+		// TODO Auto-generated method stub
+		
 	}
 }

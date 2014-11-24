@@ -1,13 +1,12 @@
 package kmps;
 
-public class Server {
+import kmps.gui.ServerWindow;
 
-	private static Controll ctr = new Controll();
+public class Server {
 	
 	public static void main(String[] args) {
 		
-		ctr.start();
-
+		new ServerWindow("Proxy server jak vino");
 	}
 
 }

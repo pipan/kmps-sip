@@ -5,12 +5,16 @@ import java.util.List;
 
 import javax.sip.RequestEvent;
 
+import kmps.gui.ServerWindow;
+
 public class ReqList {
 	
 	private List<Req> list;
+	private ServerWindow win;
 	
-	public ReqList(){
+	public ReqList(ServerWindow win){
 		list = new LinkedList<Req>();
+		this.win = win;
 	}
 	
 	public void add(Req r){

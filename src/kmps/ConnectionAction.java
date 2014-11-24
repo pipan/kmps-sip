@@ -9,4 +9,5 @@ public interface ConnectionAction {
 	public void ringing(Controll ctr, ResponseEvent e);
 	public void ok(Controll ctr, ResponseEvent e);
 	public void ack(Controll ctr, RequestEvent e);
+	public void bye(Controll ctr, RequestEvent e);
 }

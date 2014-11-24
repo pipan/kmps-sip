@@ -1,7 +1,8 @@
 package kmps;
 
-import java.security.NoSuchAlgorithmException;
-import java.text.ParseException;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -21,12 +22,11 @@ import javax.sip.address.Address;
 import javax.sip.address.AddressFactory;
 import javax.sip.header.ContactHeader;
 import javax.sip.header.HeaderFactory;
-import javax.sip.header.ViaHeader;
 import javax.sip.message.MessageFactory;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 
-import kmps.header.InviteHeaderGenerator;
+import kmps.gui.ServerWindow;
 
 public class Controll {
 	
@@ -53,24 +53,20 @@ public class Controll {
 	protected ConList conList;
 	protected List<Account> accountList;
 	
-	public Controll(){
+	private ServerWindow win;
+	
+	public Controll(ServerWindow win){
+		this.win = win;
 		listener = new MySipListener(this);
 		accountList = new ArrayList<Account>();
-		accountList.add(new Account("Feri", "Feri101", "101"));
-		accountList.add(new Account("Karol", "Karol102", "102"));
-		reqList = new ReqList();
-		conList = new ConList();
-		this.protocol = "UDP";
-		this.port = 5060;
+		reqList = new ReqList(win);
+		conList = new ConList(win);
 	}
 	
 	public void start(){
-		
 		try {
-			// Get the local IP address.
-			//this.ip = "147.175.182.134";
-			this.ip = "192.168.104.1";
-			//this.ip = "192.168.0.111";
+			initAccount();
+			initConfig();
 			
 			// Create the SIP factory and set the path name.
 			this.sipFactory = SipFactory.getInstance();
@@ -110,6 +106,15 @@ public class Controll {
 		}
 	}
 	
+	public void addAccount(Account a){
+		accountList.add(a);
+		win.addAccount(a);
+	}
+	public void removeAccount(Account a){
+		accountList.remove(a);
+		win.removeAccount(accountList);
+	}
+	
 	public Account getAccount(String name){
 		for(Account a : accountList){
 			if (a.getExt().equals(name)){
@@ -117,6 +122,26 @@ public class Controll {
 			}
 		}
 		return null;
+	}
+	public Integer getAccountId(Req r){
+		Integer i = 0;
+		for (Account a : accountList){
+			if (a == r.getAccount()){
+				break;
+			}
+			i++;
+		}
+		return i;
+	}
+	public Integer getConnectionId(Connection con){
+		Integer i = 0;
+		for (Connection c : conList.list){
+			if (c.getCallId().equals(con.getCallId())){
+				return i;
+			}
+			i++;
+		}
+		return i;
 	}
 	public String getIP(){
 		return ip;
@@ -126,6 +151,9 @@ public class Controll {
 	}
 	public String getProtocol(){
 		return protocol;
+	}
+	public List<Account> getAccounts(){
+		return accountList;
 	}
 	
 	public AddressFactory getAddressFactory(){
@@ -189,4 +217,59 @@ public class Controll {
         }
         return null;
     }
+	 
+	 public void connected(Req r){
+		 win.connected(r);
+	 }
+	 
+	 public void disconnected(Req s){
+		 win.disconnected(s);
+	 }
+	 
+	 public void callCreated(Connection c){
+		 win.callCreated(c);
+	 }
+	 public void callAccepted(Connection c){
+		 win.callAccepted(c);
+		 System.out.println("ACCepted");
+	 }
+	 
+	 public void initAccount() throws IOException{
+		BufferedReader config = new BufferedReader(new FileReader("account.txt"));
+		String line;
+		String[] lineSplit;
+		
+		while ((line = config.readLine()) != null){
+			lineSplit = line.split(": ");
+			if (lineSplit.length > 1 && lineSplit[0].equals("ACCOUNT")){
+				lineSplit = lineSplit[1].split(" ");
+				if (lineSplit.length == 3){
+					addAccount(new Account(lineSplit[0], lineSplit[2], lineSplit[1]));
+				}
+			}
+			
+		}
+		config.close();
+	 }
+	 
+	 public void initConfig() throws IOException{
+		BufferedReader config = new BufferedReader(new FileReader("config.txt"));
+		String line;
+		String[] lineSplit;
+		
+		while ((line = config.readLine()) != null){
+			lineSplit = line.split(": ");
+			if (lineSplit.length > 1 && lineSplit[0].equals("IP")){
+				this.ip = lineSplit[1];
+			}
+			else if (lineSplit.length > 1 && lineSplit[0].equals("PORT")){
+				this.port = Integer.parseInt(lineSplit[1]);
+			}
+			else if (lineSplit.length > 1 && lineSplit[0].equals("PROTOCOL")){
+				this.protocol = lineSplit[1];
+			}
+			
+		}
+		config.close();
+	 }
 }

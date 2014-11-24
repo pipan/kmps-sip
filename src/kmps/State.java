@@ -20,6 +20,7 @@ public class State implements ReqAction {
 			auth(ctr, e);
 			break;
 		case ACK:
+			//ctr.connected(this);
 			break;
 		}
 		System.out.println(" to " + this.value.toString());

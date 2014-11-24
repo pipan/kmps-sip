@@ -5,12 +5,16 @@ import java.util.List;
 
 import javax.sip.header.CallIdHeader;
 
+import kmps.gui.ServerWindow;
+
 public class ConList {
 
-	List<Connection> list;
+	protected List<Connection> list;
+	private ServerWindow win;
 	
-	public ConList(){
+	public ConList(ServerWindow win){
 		this.list = new ArrayList<Connection>();
+		this.win = win;
 	}
 	
 	public void add(Connection c){

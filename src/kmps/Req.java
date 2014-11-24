@@ -4,7 +4,6 @@ import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 
 import javax.sip.RequestEvent;
-import javax.sip.header.Header;
 import javax.sip.header.ViaHeader;
 import javax.sip.message.Response;
 
@@ -68,6 +67,7 @@ public class Req extends State {
 				gen.generateOk(ctr.headerFactory, okResponse, 3600);
 				ctr.respond(e, okResponse);
 				ctr.reqList.removeByAccount(account, true);
+				ctr.connected(this);
 				this.value = Status.ACK;
 			}
 			else{

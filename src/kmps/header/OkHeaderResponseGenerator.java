@@ -23,11 +23,10 @@ public class OkHeaderResponseGenerator extends HeaderGenerator {
 		// TODO Auto-generated constructor stub
 	}
 
-	public Response generateInvite(Response r, Req req, ViaHeader via, Controll ctr) throws ParseException, NullPointerException, SipException{
+	public Response generateOkResponse(Response r, Req req, ViaHeader via, Controll ctr) throws ParseException, NullPointerException, SipException{
 		r.removeHeader(ViaHeader.NAME);
         r.addFirst(via);
 
-        //  forwardingResponse.addFirst();
         SipURI uri = (SipURI) ctr.getAddressFactory().createSipURI(req.getAccount().getExt().toString(), ctr.getIP());
         uri.setTransportParam(ctr.getProtocol());
         uri.setPort(ctr.getPort());

@@ -13,7 +13,6 @@ import javax.sip.address.SipURI;
 import javax.sip.header.CallIdHeader;
 import javax.sip.header.FromHeader;
 import javax.sip.header.ToHeader;
-import javax.sip.header.ViaHeader;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 
@@ -47,7 +46,9 @@ public class MySipListener implements SipListener {
         	if (ctr.reqList.existsByLocation(e, false)){
         		System.out.println("<-- Request Exists");
         		Req tmp = ctr.reqList.getByLocation(e);
+        		//Ak sa relogujem
         		if(tmp.value == Status.ACK){
+        			ctr.disconnected(tmp);
         			MyContactAddress cParser = MyContactAddress.getContactAddressByEvent(e);
         			if (ctr.getAccount(cParser.getName()) != null){
 	        			tmp.init(ctr.getAccount(cParser.getName()));
@@ -55,7 +56,7 @@ public class MySipListener implements SipListener {
         			//ZLA EXTENSION
         			else{
         				try {
-            				System.out.println("<-- ERR: Wrong Extendion");
+            				System.out.println("<-- ERR: Wrong Extention " + cParser.getName());
     						ctr.respond(e, ctr.messageFactory.createResponse(Response.BAD_EXTENSION, e.getRequest()));
     					} catch (ParseException e1) {
     						e1.printStackTrace();
@@ -75,7 +76,7 @@ public class MySipListener implements SipListener {
         		//ZLA EXTENSION
         		else{
         			try {
-        				System.out.println("<-- ERR: Wrong Extendion");
+        				System.out.println("<-- ERR: Wrong Extention " + cParser.getName());
 						ctr.respond(e, ctr.messageFactory.createResponse(Response.BAD_EXTENSION, e.getRequest()));
 					} catch (ParseException e1) {
 						e1.printStackTrace();
@@ -83,7 +84,7 @@ public class MySipListener implements SipListener {
         		}
         	}
         }
-        if (e.getRequest().getMethod().equals(Request.INVITE)) {
+        else if (e.getRequest().getMethod().equals(Request.INVITE)) {
         	System.out.println("INVITE");
         	MyContactAddress cParser = MyContactAddress.getContactAddressByEvent(e);
         	if (ctr.reqList.existsByAccount(ctr.getAccount(cParser.getName()), true)){
@@ -109,7 +110,13 @@ public class MySipListener implements SipListener {
         		
         	}
         }
-		
+        else if (e.getRequest().getMethod().equals(Request.ACK)) {
+        	CallIdHeader id = (CallIdHeader)e.getRequest().getHeader(CallIdHeader.NAME);
+            if (ctr.conList.exists(id)) {
+                Connection con = ctr.conList.getById(id);
+                con.changeState(ctr, e);
+            }
+        }
 	}
 
 	@Override
